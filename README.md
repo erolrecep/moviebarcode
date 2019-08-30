@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Movie Barcode Generator
 
 ### Usage
@@ -45,7 +44,3 @@ experiment folder name and output file names.
 
 **In case of emergency, there is a section in the toolbar called "issues", you can create one and github will 
 send me the evacuation message. Thanks!**
-=======
-# movie_barcode
-generate unique barcode for each video from YouTube
->>>>>>> 2e81bf71cfd6ca686fb69d29f95d0d83b4fbfbfd
