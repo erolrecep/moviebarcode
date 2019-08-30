@@ -39,6 +39,12 @@ experiment folder name and output file names.
         └── g8vHhgh6oM0
             ├── g8vHhgh6oM0.json
             └── g8vHhgh6oM0.png
+            
+            
+for the image, you should see something like the below, if not, please check your internet connection first.
+
+![g8vHhgh6oM0.png](https://github.com/erolrecep/movie_barcode/blob/master/img/g8vHhgh6oM0.png)
+
 
 
 
