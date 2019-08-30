@@ -13,7 +13,7 @@ import pprint
 
 HOME = os.getcwd()
 YTURL = "https://www.youtube.com/watch?v=g8vHhgh6oM0"
-output_directory = HOME + "/output"
+output_directory = HOME + "/output" + "/" + YTURL.split("=")[-1]
 json_file = output_directory + "/" + YTURL.split("=")[-1] + ".json"
 png_file = output_directory + "/" + YTURL.split("=")[-1] + ".png"
 
@@ -40,7 +40,7 @@ args = vars(ap.parse_args())
 
 # Check if output_directory is not available, create one
 if not os.path.exists(output_directory):
-    os.mkdir(output_directory)
+    os.makedirs(output_directory)
     if args["verbose"]:
         print("[{} | INFO] Output directory is created.".format(datetime.datetime.now().time()))
 
