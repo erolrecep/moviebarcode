@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-import cv2                                                     # opencv version is 3.3.1
+import cv2                                                                                     # opencv version is 3.3.1
 import numpy as np
 import os, sys
 import argparse
@@ -9,7 +9,11 @@ import datetime
 import pafy
 import json
 import pprint
+import httplib2
 
+
+# TODO: check if youtube link is a video list
+# TODO: Accelerate video streaming?
 
 HOME = os.getcwd()
 YTURL = "https://www.youtube.com/watch?v=g8vHhgh6oM0"
@@ -18,24 +22,26 @@ json_file = output_directory + "/" + YTURL.split("=")[-1] + ".json"
 png_file = output_directory + "/" + YTURL.split("=")[-1] + ".png"
 
 
-# Steps of the program
-# 0- Command Line arguments for the program. Program will be app as well.
-# 1- Check and validate the link is youtube link and is working
-# 2- List available resolution and bitrate before stream
-# 3- To stream, we need the best tool. Look for it.
-# 4- Once we get the video object, start processing with opencv
-# 5- To standardize the feature extraction part, we just need to determine output
-# 6- Save movie barcode as json file first. Then we can process later on form of input data to ml model
-# 7- Add new code for visualization part. Show some option other than as png file.
+def validate_url(url):
+    c = httplib2.Http()
+    resp = c.request(YTURL, "HEAD")
+    return int(resp[0]["status"])
 
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="Video path on your box")
 ap.add_argument("-l", "--verbose", default=1, help="display debug lines")
-ap.add_argument("-j", "--json", default = json_file, help="josn file to write barcode data")
+ap.add_argument("-j", "--json", default=json_file, help="json file to write barcode data")
 ap.add_argument("-b", "--barcode", default=png_file, help="path to png file to write barcode image")
-# ap.add_argument("-d", "--display", help="play video if you want to see")
+ap.add_argument("-d", "--display", default=0, help="play video if you want to see")
 args = vars(ap.parse_args())
+
+
+if validate_url(YTURL) == 200:
+    if args["verbose"]:
+        print("[{} | INFO] YouTube url is valid!.".format(datetime.datetime.now().time()))
+else:
+    raise ValueError("[{} | ERROR] YouTube url is not valid!.".format(datetime.datetime.now().time()))
 
 
 # Check if output_directory is not available, create one
@@ -43,41 +49,22 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
     if args["verbose"]:
         print("[{} | INFO] Output directory is created.".format(datetime.datetime.now().time()))
-
 else:
     if args["verbose"]:
         print("[{} | INFO] Output directory is already available.".format(datetime.datetime.now().time()))
     pass
 
 
-#####################################################
-### Link Validation and check whether it is alive ###
-#####################################################
-
-
-#################################################################
-### We will use pafy, cv2, may be ffmpeg for video processing ###
-#################################################################
-
-
-# Steps for processing
-# 1- find number of frames in video
-# 2- get the video from youtube with pafy
-# 3- generate movie barcode of the video with opencv
-# 4- finalize the program and release the video
-
-
 def frame_count(YTURL):
     """
-    :param video: is an opencv VideoCapture() object
-    :return:      number of frames in the video
+    :param
+        YTURL: youtube video url -> it should be a single video.
+    :return:
+        number of frames in the video
 
     :usage
-        cap = cv2.VideoCapture(movie.url)
-        -> total=frame_count(cap)
+        n_frames = frame_count(YTURL)
     """
-
-    # TODO: check if the video object is not empty
 
     video = cv2.VideoCapture(YTURL)
 
@@ -102,11 +89,20 @@ def frame_count(YTURL):
 
 
 def get_url(YTURL):
+    """
+    :param
+        YTURL: youtube video url -> it should be a single video.
+    :return:
+        best available download link of the video
+
+    :usage
+        best_specs.url = get_url(YTURL)
+    """
+
     video_pafy = pafy.new(YTURL)
-    # TODO: We need to work on this a little bit
     best_specs = video_pafy.getbest(preftype="webm")
 
-    # if args["verbose"]:
+    # if args["verbose"]:                                          # if you'd like to see the video url before download.
     #     print("[{} | INFO] YTURL: {}.".format(datetime.datetime.now().time(), best_specs.url))
 
     # TODO: print other information about video
@@ -135,20 +131,31 @@ def get_url(YTURL):
 
 
 def generate_barcode(video):
+    """
+    :param
+        video: video object.
+    :return:
+        average R, G, B values of each frame in a video
 
-    print("video object type: {}".format(type(video)))
+    :usage
+        avgs = generate_barcode(video)
+    """
+
+    if video is None:
+        raise ValueError("[{} | ERROR] video object is empty!".format(datetime.datetime.now().time()))
 
     # mean value for each frame of the video
     avgs = []
 
-    # TODO: check if the video object is not empty
-    # TODO: Accelerate video streaming?
     while True:
         # get the frame
         (ret, frame) = video.read()
 
         if not ret:
             break
+
+        if args["display"]:
+            cv2.imshow("video", frame)
 
         frame_avg = cv2.mean(frame)[:3]
         avgs.append(frame_avg)
@@ -160,6 +167,16 @@ def generate_barcode(video):
 
 
 def vis_barcode():
+    """
+    :param
+        None
+    :return:
+        None
+
+    :usage
+        Would you like to see the movie barcode on action?
+    """
+
     # load the averages file and convert it to a NumPy array
     avgs = json.loads(open(args["json"]).read())
     np_avgs = np.array(avgs, dtype="int")
@@ -184,14 +201,10 @@ def vis_barcode():
         cv2.destroyAllWindows()
 
 
-#######################################################
-### movie barcode data will be saved as json object ###
-#######################################################
-
-
+# Main function like we have in many C based languages
 def main():
     print("main")
-    # print(cv2.getBuildInformation())
+    # print(cv2.getBuildInformation())                                                # Display OpenCV build information
 
     video_url = get_url(YTURL=YTURL)
     num_frames = frame_count(video_url)
