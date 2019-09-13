@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 
+# import required libraries
+import pafy
+
 # This will be the accelerated version of master branch
 # It will read youtube urls from a txt file and save movie_barcode as json file
 # The critical think is we need to adjust all videos into the same lenght of json
@@ -44,3 +47,13 @@ def get_movie_barcode(url):
 all_urls = read_urls("urls.txt")
 for url in all_urls:
     print(url)
+
+
+yt_list = all_urls[-1]
+
+playlist = pafy.get_playlist(yt_list)
+
+print("Number of videos in this play list: {}".format(len(playlist["items"])))
+
+for video in playlist["items"]:
+    print("{} | {}".format(video['pafy'].videoid, video['pafy'].title))
