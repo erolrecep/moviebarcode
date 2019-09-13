@@ -9,6 +9,7 @@
 
 # TODO: The purpose of this code is just creating a data set
 # TODO: We should keep list of video ids within a csv file in case we want to measure the performance of clustering
+# TODO: Do not forget to update the upstream project on github
 
 
 # Read urls.txt and put them into an order of stream and generate movie_barcode
