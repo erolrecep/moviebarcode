@@ -22,7 +22,7 @@ import pafy
 # clusters.
 # For numerically identification of clusters, we need another kind of measuring and visualization.
 
-# TODO: Read the txt and add all urls into a pipeline
+
 # TODO: add exception handling
 def read_urls(filename):
     with open(filename, "r") as f:
@@ -34,7 +34,7 @@ def read_urls(filename):
 # TODO: With pafy, get list of video urls of youtube.
 # TODO: return the list of videos within a playlist
 def get_urls_from_playlist(playlist):
-    return 0
+    return pafy.get_playlist(playlist)
 
 
 # TODO: return the generated movie barcode for a video url
@@ -42,18 +42,20 @@ def get_movie_barcode(url):
     return 0
 
 
-# TODO:
-
 all_urls = read_urls("urls.txt")
 for url in all_urls:
     print(url)
 
+links = [get_urls_from_playlist(url) for url in all_urls]
 
+video_ids = [pa]
 yt_list = all_urls[-1]
 
 playlist = pafy.get_playlist(yt_list)
 
 print("Number of videos in this play list: {}".format(len(playlist["items"])))
 
-for video in playlist["items"]:
-    print("{} | {}".format(video['pafy'].videoid, video['pafy'].title))
+with open("ids.txt", "w+") as f:
+    for video in playlist["items"]:
+        print("{} | {}".format(video['pafy'].videoid, video['pafy'].title))
+        f.write("{}\n".format(video['pafy'].videoid))
