@@ -7,15 +7,14 @@ import os, sys
 import argparse
 import datetime
 import pafy
-pafy.set_api_key("AIzaSyDB8XKh_Pcz4uMnOqO1Z5ueirS-bqemkV0")   # TODO: Write this info to a file and read from there
+pafy.set_api_key("AIzaSyDB8XKh_Pcz4uMnOqO1Z5ueirS-bqemkV0")
+
 
 import json
 import pprint
 import httplib2
 
 # TODO: Accelerate video streaming?
-# TODO: Make loggins with python logger
-# TODO: Make path assigns with Python pathlib
 
 # if you're lazy, you can use this url to test the code works for you.
 default_single = 'https://www.youtube.com/watch?v=g8vHhgh6oM0'
@@ -93,12 +92,12 @@ def get_url(YTURL):
     """
 
     video_pafy = pafy.new(YTURL)
-    best_specs = video_pafy.getbest(preftype="webm")  # TODO: Make dynamic this step. get the most basic ones.
+    best_specs = video_pafy.getbest(preftype="webm")
 
     # if args["verbose"]:                                          # if you'd like to see the video url before download.
     #     print("[{} | INFO] YTURL: {}.".format(datetime.datetime.now().time(), best_specs.url))
 
-    # print other information about video
+    # TODO: print other information about video
     pp = pprint.PrettyPrinter(indent=2)
 
     print("-"*(len(video_pafy.title) + 18))
@@ -196,7 +195,7 @@ def vis_barcode(png_file_name=None):
         cv2.imwrite(png_file_name, barcode)
 
     if args["display"]:
-        cv2.imshow("Barcode", barcode)  # TODO: Add another option to visualize the image such as PIL, or scikit-image
+        cv2.imshow("Barcode", barcode)
         cv2.waitKey(0)
         if sys.platform == "linux":
             cv2.destroyAllWindows()
@@ -251,8 +250,8 @@ def main():
     # TODO: Call identify function to check if the video is playlist or a single video
     status = identify_url(args['yturl'])
     if status == "single":
-        # Do the steps for a single video
-        # Verify experiment environment
+        # TODO: Do the steps for a single video
+        # TODO: Verify experiment environment
 
         output_directory = home + "/output" + "/" + args["yturl"].split("=")[-1]
         if not os.path.exists(output_directory):
@@ -292,9 +291,9 @@ def main():
 
     elif status == "playlist":
         video_ids = parse_playlist(args["yturl"])
-        # Do the steps for a playlist
+        # TODO: Do the steps for a playlist
+        # TODO: Verify experiment environment
 
-        # Verify experiment environment
         for video_idx in video_ids:
             output_directory = home + "/output" + "/" + str(video_idx)
             if not os.path.exists(output_directory):
@@ -350,7 +349,6 @@ def main():
             # free arguments for a new video
             args["json"] = None
             args["barcode"] = None
-
 
 if __name__ == "__main__":
     main()
