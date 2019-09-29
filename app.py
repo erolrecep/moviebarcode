@@ -245,7 +245,7 @@ def main():
 
     # if user hasn't entered a youtube url, no worries, we have alive one.
     if args["yturl"] is None:
-        args["yturl"] = default_single
+        args["yturl"] = default_playlist
 
     home = os.getcwd()
     # print(cv2.getBuildInformation())                                                # Display OpenCV build information
