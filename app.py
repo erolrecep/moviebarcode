@@ -7,8 +7,7 @@ import os, sys
 import argparse
 import datetime
 import pafy
-pafy.set_api_key("AIzaSyDB8XKh_Pcz4uMnOqO1Z5ueirS-bqemkV0")   # TODO: Write this info to a file and read from there
-
+import yaml
 import json
 import pprint
 import httplib2
@@ -20,6 +19,13 @@ import httplib2
 # if you're lazy, you can use this url to test the code works for you.
 default_single = 'https://www.youtube.com/watch?v=g8vHhgh6oM0'
 default_playlist = 'https://www.youtube.com/playlist?list=PLhjLO-ekrsRvxL-aGqP82qgAgJlzKPDw7'
+
+
+# config.yaml parse and assign to pafy api
+def yaml_parser(yaml_file):
+    with open('config.yaml') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    return data["key"]
 
 
 # check if youtube link is a video list
@@ -234,9 +240,12 @@ args = vars(ap.parse_args())
 
 # Main function, like we have in many C based languages
 def main():
+    key = yaml_parser("config.yaml")
+    pafy.set_api_key(key=key)
+
     # if user hasn't entered a youtube url, no worries, we have alive one.
     if args["yturl"] is None:
-        args["yturl"] = default_playlist
+        args["yturl"] = default_single
 
     home = os.getcwd()
     # print(cv2.getBuildInformation())                                                # Display OpenCV build information
