@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 
+'''
+usage:
+    $(virtual_env) python app.py -> This runs the default test for a single video
+
+    # Two youtube links are added one for a single video, the other one is a playlist. If you switch to playlist
+    $(virtual_env) python app.py -> This runs the default playlist version of the script
+                                |_> You can change the playlist url by adding the url parameter to command line
+
+    $(virtual_env) python app.py --yturl "youtube playlist link"
+                   |_> This may take time based on the videos length or number of videos as well as internet speed
+
+'''
+
 
 import cv2                                                                                     # opencv version is 3.3.1
 import numpy as np
@@ -245,7 +258,7 @@ def main():
 
     # if user hasn't entered a youtube url, no worries, we have alive one.
     if args["yturl"] is None:
-        args["yturl"] = default_playlist
+        args["yturl"] = default_single
 
     home = os.getcwd()
     # print(cv2.getBuildInformation())                                                # Display OpenCV build information
