@@ -1,5 +1,9 @@
 ## Movie Barcode Generator
 
+
+![movie_barcode_diagram](https://raw.githubusercontent.com/erolrecep/movie_barcode/master/images/movie_barcode_diagram.png)
+
+
 ### Usage
 
         $ (virtual_env)python app.py
