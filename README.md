@@ -47,7 +47,7 @@ experiment folder name and output file names.
             
 for the image, you should see something like the below, if not, please check your internet connection first.
 
-![g8vHhgh6oM0.png](https://github.com/erolrecep/movie_barcode/blob/master/img/g8vHhgh6oM0.png)
+![g8vHhgh6oM0.png](https://github.com/erolrecep/movie_barcode/blob/master/images/g8vHhgh6oM0.png)
 
 
 **This project is tested on Linux and OS X systems. If you think Windows systems worth to test, feel free to do it, but I highly recommend, do not try at home!**
