@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-'''
+"""
 usage:
     $(virtual_env) python app.py -> This runs the default test for a single video
 
     # Two youtube links are added one for a single video, the other one is a playlist. If you switch to playlist
     $(virtual_env) python app.py -> This runs the default playlist version of the script
-                                |_> You can change the playlist url by adding the url parameter to command line
+                                |
+                                |-> You can change the playlist url by adding the url parameter to command line
 
     $(virtual_env) python app.py --yturl "youtube playlist link"
-                   |_> This may take time based on the videos length or number of videos as well as internet speed
+                   |
+                   |-> This may take time based on the videos length or number of videos as well as internet speed
 
-'''
+"""
 
 
 import cv2                                                                                     # opencv version is 3.3.1
@@ -30,8 +32,15 @@ import httplib2
 # TODO: Make path assigns with Python pathlib
 
 # if you're lazy, you can use this url to test the code works for you.
-default_single = 'https://www.youtube.com/watch?v=g8vHhgh6oM0'
-default_playlist = 'https://www.youtube.com/playlist?list=PLhjLO-ekrsRvxL-aGqP82qgAgJlzKPDw7'
+# default_single = 'https://www.youtube.com/watch?v=g8vHhgh6oM0'
+# default_single = 'https://www.youtube.com/watch?v=e5WvJHG6aB4'
+# default_single = 'https://www.youtube.com/watch?v=OM5vaF2kzPA'
+default_single = 'https://www.youtube.com/watch?v=GsCmudyXY2o'
+
+# default_playlist = 'https://www.youtube.com/playlist?list=PLhjLO-ekrsRvxL-aGqP82qgAgJlzKPDw7'
+# default_playlist = 'https://www.youtube.com/playlist?list=PLlVlyGVtvuVk9yrBhEoTvOryLkOoaBeII'
+# default_playlist = 'https://www.youtube.com/playlist?list=PLujxSBD-JXglGL3ERdDOhthD3jTlfudC2'
+default_playlist = 'https://www.youtube.com/playlist?list=PLezlzyPqpo-RU-jcLVtWY5vk4XGAMe9gt'
 
 
 # config.yaml parse and assign to pafy api
