@@ -20,7 +20,7 @@ entrypoints==0.3
 funcy==1.13
 future==0.17.1
 gensim==3.8.1
-httplib2==0.13.1
+httplib2==0.18.0
 idna==2.8
 imageio==2.5.0
 importlib-metadata==0.23
