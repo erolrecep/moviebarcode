@@ -32,6 +32,12 @@ To make sure, your system available to import opencv
         
 I personally prefer to use [miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) for Python virtual environment management.
 
+<br>
+
+To use for [YouTube Public Data API](https://console.cloud.google.com/apis/), you need to create an API key. 
+Then create a config file called _config.yaml_ and then create a placeholder called _key_.
+
+<br>
 
 ### Expected Output
 
