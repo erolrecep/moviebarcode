@@ -1,5 +1,5 @@
 numpy
 pafy
 pyyaml
-httplib2
+httplib2>=0.18.1
 youtube-dl
