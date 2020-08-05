@@ -9,12 +9,12 @@ usage:
                                 |_> You can change the playlist url by adding the url parameter to command line
 
     $(virtual_env) python app.py --yturl "youtube playlist link"
-                   |_> This may take time based on the videos length or number of videos as well as internet speed
+                   |_> This may take time based on the video length or number of videos as well as internet speed
 
 '''
 
 
-import cv2                                                                                     # opencv version is 3.3.1
+import cv2                                                                                     # opencv version is 4.0.0
 import numpy as np
 import os, sys
 import argparse
@@ -80,9 +80,9 @@ def frame_count(YTURL):
     video = cv2.VideoCapture(YTURL)
 
     # if you have opencv 3 then call quick solution
-    if int(cv2.__version__.split(".")[0]) == 3:
+    if int(cv2.__version__.split(".")[0]) == 4:
         if args["verbose"]:
-            print("[{} | INFO] Lucky! You have opencv 3.x version.".format(datetime.datetime.now().time()))
+            print("[{} | INFO] Lucky! You have opencv 4.x version.".format(datetime.datetime.now().time()))
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
     else:
@@ -112,7 +112,8 @@ def get_url(YTURL):
     """
 
     video_pafy = pafy.new(YTURL)
-    best_specs = video_pafy.getbest(preftype="webm")  # TODO: Make dynamic this step. get the most basic ones.
+    # best_specs = video_pafy.getbest(preftype="webm")  # TODO: Make dynamic this step. get the most basic ones.
+    best_specs = video_pafy.getbest()  # TODO: Make dynamic this step. get the most basic ones.
 
     # if args["verbose"]:                                          # if you'd like to see the video url before download.
     #     print("[{} | INFO] YTURL: {}.".format(datetime.datetime.now().time(), best_specs.url))
@@ -126,6 +127,7 @@ def get_url(YTURL):
     print("| Video rating:   {}".format(video_pafy.rating))
     print("| Video author:   {}".format(video_pafy.author))
     print("| Video length:   {}".format(video_pafy.length))
+    print("| Video url   :   {}".format(video_pafy.getbest().url))
 
     # print("| Video keywords: {}".format(video_pafy.keywords))            # if you would like to see keywords in a line
 
@@ -139,7 +141,7 @@ def get_url(YTURL):
     print("| Video viewcount:{}".format(video_pafy.viewcount))
     print("-"*(len(video_pafy.title) + 18))
 
-    return best_specs.url
+    return video_pafy.getbest().url
 
 
 # generate json and png files.
@@ -288,6 +290,7 @@ def main():
             args["barcode"] = png_file
 
         video_url = get_url(YTURL=args["yturl"])
+        print(video_url)
         num_frames = frame_count(video_url)
 
         video = cv2.VideoCapture(video_url)

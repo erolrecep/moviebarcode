@@ -6,19 +6,22 @@
 
 ### Usage
 
-        $ (virtual_env)python app.py
+        $ (conda_env) python app.py
         
 ### Project Setup
 
 Setup development environment with the provided *requirement.txt* file. However, due to TLS OpenSSL issue, you need to 
-build *OpenCV* for your system. Then, add *.so* file to your virtualenv. If you're on OS X, you can install "opencv-contrib-python==3.3.1.11".
+build *OpenCV* for your system. Then, add *.so* file to your virtualenv. If you're on OS X, you can install "opencv-contrib-python==4.0.0.21".
 
+If you build opencv from it's source, 
+for [linux](https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/), 
+or for [Mac](https://www.pyimagesearch.com/2018/08/17/install-opencv-4-on-macos/) you can follow these steps;
 
-        $ mkvirtualenv movie_barcode
-        $ workon movie_barcode
-        $ (movie_barcode) pip install -r requirements.txt
-        $ cd ~/.virtualenvs/movie_barcode/lib/python3.x/site-packages/
-        $ ln -s /usr/local/opencv/3.3.1/lib/python3.x/site-packages/cv2.so cv2.so
+        $ conda create --name moviebarcode
+        $ conda activate moviebarcode
+        $ (moviebarcode) conda install -r requirements.txt
+        $ cd ~/miniconda3/envs/mb/lib/python3.x/site-packages/
+        $ ln -s /usr/local/opencv/4.0.0/lib/python3.x/site-packages/cv2.so cv2.so # This file location may vary to operating systems.
 
 To make sure, your system available to import opencv
 
@@ -27,7 +30,9 @@ To make sure, your system available to import opencv
         $ >>> print(cv2.getBuildInformation())
         $ # You should see build information for your opencv
         
-        
+I personally prefer to use [miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) for Python virtual environment management.
+
+
 ### Expected Output
 
 This sample project is implemented to see how movie_barcode idea works. The python script creates a folder called 
