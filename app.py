@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-'''
+"""
 usage:
     $(virtual_env) python app.py -> This runs the default test for a single video
 
@@ -11,12 +11,13 @@ usage:
     $(virtual_env) python app.py --yturl "youtube playlist link"
                    |_> This may take time based on the video length or number of videos as well as internet speed
 
-'''
+"""
 
 
 import cv2                                                                                     # opencv version is 4.0.0
 import numpy as np
-import os, sys
+import os, sys, time
+import subprocess
 import argparse
 import datetime
 import pafy
@@ -24,6 +25,7 @@ import yaml
 import json
 import pprint
 import httplib2
+from imutils.video import FileVideoStream, FPS
 
 # TODO: Accelerate video streaming?
 # TODO: Make loggins with python logger
@@ -80,9 +82,9 @@ def frame_count(YTURL):
     video = cv2.VideoCapture(YTURL)
 
     # if you have opencv 3 then call quick solution
-    if int(cv2.__version__.split(".")[0]) == 4:
+    if int(cv2.__version__.split(".")[0]) >= 3:
         if args["verbose"]:
-            print("[{} | INFO] Lucky! You have opencv 4.x version.".format(datetime.datetime.now().time()))
+            print("[{} | INFO] Lucky! You have opencv 3.x or 4.x version.".format(datetime.datetime.now().time()))
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
     else:
@@ -91,12 +93,25 @@ def frame_count(YTURL):
 
         num_frames = 0
 
-        while True:
+        ret = True
+        while ret:
             # read frame-by-frame where the show begins!
             ret, frame = video.read()
             num_frames += 1
 
     return num_frames
+
+
+# if you just want to get video url no metadata
+def url_only(YTURL):
+    assert YTURL, str
+
+    # subprocess.call(["youtube-dl", "-f", "'worstvideo'", YTURL, "--skip-download", "-g"])
+    result = subprocess.run(["youtube-dl", "-f", "worstvideo[protocol^=http]", YTURL, "-g", "--skip-download"], stdout=subprocess.PIPE)
+    # result = subprocess.run(["youtube-dl", "-g", YTURL, "--skip-download"], stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8').split()[0]
+    print(f"output: {output}")
+    return output
 
 
 # get the best available youtube video url from pafy object
@@ -113,7 +128,7 @@ def get_url(YTURL):
 
     video_pafy = pafy.new(YTURL)
     # best_specs = video_pafy.getbest(preftype="webm")  # TODO: Make dynamic this step. get the most basic ones.
-    best_specs = video_pafy.getbest()  # TODO: Make dynamic this step. get the most basic ones.
+    # best_specs = video_pafy.getbest()  # TODO: Make dynamic this step. get the most basic ones.
 
     # if args["verbose"]:                                          # if you'd like to see the video url before download.
     #     print("[{} | INFO] YTURL: {}.".format(datetime.datetime.now().time(), best_specs.url))
@@ -145,7 +160,7 @@ def get_url(YTURL):
 
 
 # generate json and png files.
-def generate_barcode(video):
+def generate_barcode(video_url):
     """
     :param
         video: video object.
@@ -156,27 +171,45 @@ def generate_barcode(video):
         avgs = generate_barcode(video)
     """
 
-    if video is None:
-        raise ValueError("[{} | ERROR] video object is empty!".format(datetime.datetime.now().time()))
+    assert video_url, str
+
+    if video_url is None:
+        raise ValueError("[{} | ERROR] video url is None object!".format(datetime.datetime.now().time()))
 
     # mean value for each frame of the video
     avgs = []
 
-    while True:
-        # get the frame
-        (ret, frame) = video.read()
+    # start the file video stream thread and allow the buffer to
+    # start to fill
+    print("[INFO] starting video file thread...")
+    fvs = FileVideoStream(video_url).start() # TODO: Fix here, we need a url not VideoCapture object.
+    time.sleep(1.0)
+    # start the FPS timer
+    fps = FPS().start()
 
-        if not ret:
-            break
+    while fvs.more():
+        # grab the frame from the threaded video file stream, resize
+        # it, and convert it to grayscale (while still retaining 3
+        # channels)
+        frame = fvs.read()
 
         if args["display"]:
             cv2.imshow("video", frame)
 
         frame_avg = cv2.mean(frame)[:3]
         avgs.append(frame_avg)
+        fps.update()
 
     if args["verbose"]:
         print("[{} | INFO] video barcode is ready. Size:{}".format(datetime.datetime.now().time(), len(avgs)))
+
+    # stop the timer and display FPS information
+    fps.stop()
+    print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+    # do a bit of cleanup
+    cv2.destroyAllWindows()
+    fvs.stop()
 
     return avgs
 
@@ -261,6 +294,7 @@ def main():
     # if user hasn't entered a youtube url, no worries, we have alive one.
     if args["yturl"] is None:
         args["yturl"] = default_single
+        # args["yturl"] = default_playlist
 
     home = os.getcwd()
     # print(cv2.getBuildInformation())                                                # Display OpenCV build information
@@ -289,11 +323,16 @@ def main():
             png_file = output_directory + "/" + args["yturl"].split("=")[-1] + ".png"
             args["barcode"] = png_file
 
-        video_url = get_url(YTURL=args["yturl"])
-        print(video_url)
+        # Normal way of getting the url
+        # video_url = get_url(YTURL=args["yturl"])
+
+        # alternative approach
+        video_url = url_only(YTURL=args["yturl"])
+
+        # print(video_url)
         num_frames = frame_count(video_url)
 
-        video = cv2.VideoCapture(video_url)
+        # video = cv2.VideoCapture(video_url)
 
         if args["verbose"]:
             print("[{} | INFO] Number of frames: {}".format(datetime.datetime.now().time(), num_frames))
@@ -302,13 +341,13 @@ def main():
         # Check if the file is already available, delete it.
         if not os.path.exists(args["json"]):
             with open(args["json"], "w") as json_file:
-                json_file.write(json.dumps(generate_barcode(video=video)))
+                json_file.write(json.dumps(generate_barcode(video_url=video_url)))
         else:
             os.remove(args["json"])
             with open(args["json"], "w") as json_file:
-                json_file.write(json.dumps(generate_barcode(video=video)))
+                json_file.write(json.dumps(generate_barcode(video_url=video_url)))
 
-        video.release()
+        # video.release()
 
         if args["verbose"]:
             print("[{} | INFO] json file is being written to {}".format(datetime.datetime.now().time(), args["json"]))
@@ -348,7 +387,7 @@ def main():
             video_link = get_url(video_url)
             num_frames = frame_count(video_link)
 
-            video = cv2.VideoCapture(video_link)
+            # video = cv2.VideoCapture(video_link)
 
             if args["verbose"]:
                 print("[{} | INFO] Number of frames: {}".format(datetime.datetime.now().time(), num_frames))
@@ -357,13 +396,13 @@ def main():
             # Check if the file is already available, delete it.
             if not os.path.exists(args["json"]):
                 with open(args["json"], "w") as json_file:
-                    json_file.write(json.dumps(generate_barcode(video=video)))
+                    json_file.write(json.dumps(generate_barcode(video_url=video_link)))
             elif os.path.exists(args["json"]):
                 os.remove(args["json"])
                 with open(args["json"], "w") as json_file:
-                    json_file.write(json.dumps(generate_barcode(video=video)))
+                    json_file.write(json.dumps(generate_barcode(video_url=video_link)))
 
-            video.release()
+            # video.release()
 
             if args["verbose"]:
                 print("[{} | INFO] json file is being written to {}".format(datetime.datetime.now().time(), args["json"]))
