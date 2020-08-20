@@ -106,12 +106,19 @@ def frame_count(YTURL):
 def url_only(YTURL):
     assert YTURL, str
 
-    # subprocess.call(["youtube-dl", "-f", "'worstvideo'", YTURL, "--skip-download", "-g"])
-    result = subprocess.run(["youtube-dl", "-f", "worstvideo[protocol^=http]", YTURL, "-g", "--skip-download"], stdout=subprocess.PIPE)
-    # result = subprocess.run(["youtube-dl", "-g", YTURL, "--skip-download"], stdout=subprocess.PIPE)
+#     result = subprocess.run(["youtube-dl", "-v", "-f", "bestvideo", YTURL, "--skip-download", "-g"], stdout=subprocess.PIPE) 
+    result = subprocess.run(["youtube-dl", "-v", YTURL, "--skip-download", "-g"], stdout=subprocess.PIPE)
+#     result = subprocess.run(["youtube-dl", "-v", "-f", "worstvideo[ext=mp4]", YTURL, "-g", "--skip-download"], stdout=subprocess.PIPE)
+#     result = subprocess.run(["youtube-dl", YTURL, "-g","--skip-download"], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').split()[0]
     print(f"output: {output}")
     return output
+
+
+# if you just want to get video url no metadata
+def video_download(YTURL):
+    assert YTURL, str
+    subprocess.run(["youtube-dl", YTURL])
 
 
 # get the best available youtube video url from pafy object
@@ -156,7 +163,7 @@ def get_url(YTURL):
     print("| Video viewcount:{}".format(video_pafy.viewcount))
     print("-"*(len(video_pafy.title) + 18))
 
-    return video_pafy.getbest().url
+    return video_pafy.videoid, video_pafy.getbest().url
 
 
 # generate json and png files.
@@ -323,14 +330,28 @@ def main():
             png_file = output_directory + "/" + args["yturl"].split("=")[-1] + ".png"
             args["barcode"] = png_file
 
+        # Download video and generate moviebarcode later
+        video_download(YTURL=args["yturl"])
+        
         # Normal way of getting the url
-        # video_url = get_url(YTURL=args["yturl"])
+        video_id, video_url = get_url(YTURL=args["yturl"])
 
-        # alternative approach
-        video_url = url_only(YTURL=args["yturl"])
+#         alternative approach
+#         video_url = url_only(YTURL=args["yturl"])
 
+        # Find video file in the running directory and load with opencv
+        for file_ in os.listdir("./"):
+#             print(f"files: {file_}")
+            if str(video_id) in file_:
+                video_loc = file_
+#                 print(f"video_loc={video_loc}")
+                
         # print(video_url)
-        num_frames = frame_count(video_url)
+        num_frames = frame_count(video_loc)
+            
+
+#         # print(video_url)
+#         num_frames = frame_count(video_url)
 
         # video = cv2.VideoCapture(video_url)
 
@@ -341,11 +362,11 @@ def main():
         # Check if the file is already available, delete it.
         if not os.path.exists(args["json"]):
             with open(args["json"], "w") as json_file:
-                json_file.write(json.dumps(generate_barcode(video_url=video_url)))
+                json_file.write(json.dumps(generate_barcode(video_url=video_loc)))
         else:
             os.remove(args["json"])
             with open(args["json"], "w") as json_file:
-                json_file.write(json.dumps(generate_barcode(video_url=video_url)))
+                json_file.write(json.dumps(generate_barcode(video_url=video_loc)))
 
         # video.release()
 
@@ -353,6 +374,11 @@ def main():
             print("[{} | INFO] json file is being written to {}".format(datetime.datetime.now().time(), args["json"]))
 
         vis_barcode()
+        
+        os.remove(video_loc)
+        if args["verbose"]:
+            print("[{} | INFO] {} video file is removed".format(datetime.datetime.now().time(), video_loc))
+         
 
     elif status == "playlist":
         video_ids = parse_playlist(args["yturl"])
