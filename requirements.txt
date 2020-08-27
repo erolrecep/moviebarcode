@@ -1,7 +1,5 @@
-numpy
 pafy
 pyyaml
 httplib2>=0.18.1
 youtube-dl
 imutils
-opencv-python==4.0.0.21

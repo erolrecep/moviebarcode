@@ -19,6 +19,7 @@ or for [Mac](https://www.pyimagesearch.com/2018/08/17/install-opencv-4-on-macos/
 
         $ conda create --name moviebarcode
         $ conda activate moviebarcode
+        $ conda install -c conda-forge numpy opencv   (reference: https://anaconda.org/conda-forge/opencv)
         $ (moviebarcode) conda install -r requirements.txt
         $ cd ~/miniconda3/envs/mb/lib/python3.x/site-packages/
         $ ln -s /usr/local/opencv/4.0.0/lib/python3.x/site-packages/cv2.so cv2.so # This file location may vary to operating systems.
@@ -37,6 +38,15 @@ I personally prefer to use [miniconda](https://conda.io/projects/conda/en/latest
 To use for [YouTube Public Data API](https://console.cloud.google.com/apis/), you need to create an API key. 
 Then create a config file called _config.yaml_ and create a placeholder called _key_. After that assign YouTube public API key to this placeholder.
 
+<br>
+
+To make your life easier, I added a bash script file called *prepare_env.sh* to help your start running <u>app.py</u> immediately.
+
+<br>
+
+Right after you do the required steps, the last thing is getting your YouTube public data api 
+from [here](https://developers.google.com/youtube/v3/getting-started), and open the developer console. 
+Next, you will see "+ ENABLE APIS AND SERVICES" button on the toolbar. The next steps are easy to follow.
 <br>
 
 ### Expected Output

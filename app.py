@@ -14,7 +14,7 @@ usage:
 """
 
 
-import cv2                                                                                     # opencv version is 4.0.0
+import cv2                                                                                     # opencv version is > 3.x
 import numpy as np
 import os, sys, time
 import subprocess
@@ -27,9 +27,7 @@ import pprint
 import httplib2
 from imutils.video import FileVideoStream, FPS
 
-# TODO: Accelerate video streaming?
 # TODO: Make loggins with python logger
-# TODO: Make path assigns with Python pathlib
 
 # if you're lazy, you can use this url to test the code works for you.
 default_single = 'https://www.youtube.com/watch?v=g8vHhgh6oM0'
