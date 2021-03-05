@@ -8,31 +8,32 @@
 
 Create a Python virtual environment.
 
-```{shell}
-mkvirtualenv moviebarcode -p python3
+```shell
+$ mkvirtualenv moviebarcode -p python3
 ```
 
 Install required libraries
-```{shell}
-(moviebarcode) pip install -r requirements.txt
+```shell
+$ (moviebarcode) pip install -r requirements.txt
 ```
 
 ### Usage
 
 Generate Moviebarcode with main.py
 
-```{shell}
-(moviebarcode) python main.py -v "video_path"
+```shell
+$ (moviebarcode) python main.py -v "video_path"
 ```
 
 Use Moviebarcode module in your code
 
-```{python}
+```python
+from src.moviebarcode import Moviebarcode
 moviebarcode = Moviebarcode(video_path)
 moviebarcode.generate()
+moviebarcode.display_barcode()
 # Create an image, .png file
 moviebarcode.make_image()
-moviebarcode.display_barcode()
 ```
 
 Sample barcode outputs
