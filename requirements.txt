@@ -1,5 +1,3 @@
-pafy
-pyyaml
-httplib2>=0.18.1
-youtube-dl
+numpy
 imutils
+opencv-contrib-python
