@@ -37,5 +37,5 @@ moviebarcode.display_barcode()
 
 Sample output of a barcode
 
-![g8vHhgh6oM0.png](https://github.com/erolrecep/movie_barcode/blob/master/images/g8vHhgh6oM0.png)
+![g8vHhgh6oM0.png](https://raw.githubusercontent.com/erolrecep/moviebarcode/main/images/g8vHhgh6oM0.png)
 ![moviebarcode](https://raw.githubusercontent.com/erolrecep/moviebarcode/moviebarcode/images/moviebarcode.png)
