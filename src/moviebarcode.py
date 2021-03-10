@@ -164,7 +164,12 @@ class Moviebarcode:
 
     # TODO: make json file name dynamic to input video id
     def write2json(self, file_name="barcode.json"):
+        # Convert BGR-kind moviebarcode array to RGB
+        b = np.array(self.frame_avgs)[:, 0].reshape(-1, 1)
+        g = np.array(self.frame_avgs)[:, 1].reshape(-1, 1)
+        r = np.array(self.frame_avgs)[:, 2].reshape(-1, 1)
+        self.frame_avgs = np.concatenate([r, g, b], axis=1)
         with open(file_name, "w") as json_file:
-            json_file.write(json.dumps(self.frame_avgs))
+            json_file.write(json.dumps(self.frame_avgs.tolist()))
         if self.verbose:
-            logging.info(msg="")
+            logging.info(msg="Barcode is being written to json file!")
