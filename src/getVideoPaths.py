@@ -7,11 +7,16 @@ import os
 
 
 video_types = (".avi", ".mp4", ".webm", ".mkv")
+json_type = (".json")
 
 
 def list_videos(basePath, contains=None):
     # return the set of files that are valid
     return list_files(basePath, validExts=video_types, contains=contains)
+
+
+def list_jsons(basePath, contains=None):
+    return list_files(basePath, validExts=json_type, contains=contains)
 
 
 def list_files(basePath, validExts=None, contains=None):

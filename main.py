@@ -6,8 +6,10 @@ import argparse
 import os
 import time
 import concurrent.futures
+import numpy as np
 from src.moviebarcode import Moviebarcode
 from src.getVideoPaths import list_videos
+from src.eventbarcode import EventBarcode
 
 
 def vid2barcode(video_path):
@@ -16,7 +18,7 @@ def vid2barcode(video_path):
     # Create an image, .png file
     moviebarcode.make_image()
     # write to json file
-    moviebarcode.write2json()
+    moviebarcode.write2json(video_path.split("/")[-1].split(".")[0]+".json")
 
 
 # Read user input video and generate moviebarcode out of it
@@ -40,11 +42,18 @@ def main():
             executor.map(vid2barcode, videos_paths[:10])
         stop = time.perf_counter()
         print(f"[INFO] Total processing time: {stop - start:0.4f}")
+
     elif args["video"] is not None:
         start = time.perf_counter()
         vid2barcode(args["video"])
         stop = time.perf_counter()
         print(f"[INFO] Total processing time: {stop - start:0.4f}")
+        # Eventbarcode processing
+        ep = EventBarcode(json_folder_path="barcode.json")
+        ep.load_all()
+        print(np.array(ep.eventflow).astype('uint8'))
+        ep.find_dominant_colors(content=np.array(ep.eventflow).astype('uint8'))
+        print(ep.dominant_colors)
 
 
 if __name__ == '__main__':
