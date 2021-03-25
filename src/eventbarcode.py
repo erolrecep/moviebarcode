@@ -1,14 +1,15 @@
 # import required libraries
 import os
-import time
 import json
 import logging
-import concurrent.futures
+import tqdm
 from .getVideoPaths import list_jsons
 from collections import Counter
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+from .moviebarcode import Moviebarcode
+
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -39,10 +40,13 @@ def RGB2HEX(color):
 
 
 class EventBarcode:
-    def __init__(self, json_folder_path, no_of_colors=5, verbose=True, criteria='dominant'):
-        assert json_folder_path, str
-        if not os.path.exists(json_folder_path):
-            logging.error(msg=f"{json_folder_path} does not exist in the folder.")
+    def __init__(self,
+                 json_folder_path="output",
+                 no_of_colors=5,
+                 verbose=True,
+                 criteria='random',
+                 barcode_width=5
+                 ):
         self.path = json_folder_path
         self.eventflow = []
         self.content = []
@@ -51,52 +55,111 @@ class EventBarcode:
         self.dominant_colors = []
         self.verbose = verbose
         self.json_files = []
-
-    def apply_criteria(self, content):
-        if self.criteria == 'random':
-            # find the length of the content and pick a random one
-            leng_ = content.shape[0]
-            self.eventflow.extend(content[np.random.choice(leng_)])
-        elif self.criteria == 'first':
-            self.eventflow.extend(content[0])
-        elif self.criteria == 'dominant':
-            self.eventflow.extend(self.find_dominant_colors(content))
-        elif self.criteria == "middle":
-            pass
-        # TODO: think of adding another option for building the eventbarcode
-        # Choose a specific time of all videos and attach particular frames
-        # to do eventbarcode
+        self.barcode_width = barcode_width
 
     def get_json_files(self):
+        """
+        Get list of json files paths.
+        """
+        assert self.path, str
+        if not os.path.exists(self.path):
+            logging.error(msg=f"{self.path} does not exist in the folder.")
         self.json_files = list(list_jsons(basePath=self.path))
 
     def find_dominant_colors(self, content):
-        # assert content, list
+        """
+        Finding dominant colors from the provided content.
 
-        # Calculate KMeans for the colors in the input barcode
-        kmeans = KMeans(n_clusters=self.no_of_colors)
-        labels = kmeans.fit_predict(content)
+        :param content: a list or list-like data structure
 
-        counts = Counter(labels)
-        counts = dict(sorted(counts.items()))
+        :return: Nothing returns but the function result is a list of dominant RGB pixel values
+        """
 
-        center_colors = kmeans.cluster_centers_
-        ordered_colors = [center_colors[i] for i in counts.keys()]
-        hex_colours = [RGB2HEX(ordered_colors[i]) for i in counts.keys()]
-        self.dominant_colors = [ordered_colors[i] for i in counts.keys()]
+        # The content should be a list
+        assert content, list
 
-        if self.verbose:
-            plt.pie(counts.values(), colors=hex_colours)
-            plt.savefig("dominant_colors_pie.png")
-            # plt.show()
+        # Filter out contents if the length of the content is smaller then or equal to number of colors
+        if len(content) <= self.no_of_colors:
+            self.dominant_colors = [[0, 0, 0] for idx in range(self.no_of_colors)]
+        else:
+            # Calculate KMeans for the colors in the input barcode
+            kmeans = KMeans(n_clusters=self.no_of_colors)
+            labels = kmeans.fit_predict(content)
 
-    def load_json(self, json_file):
-        with open(json_file) as f:
-            content = json.load(f)
-        # TODO: Apply criteria here and extend to eventflow array
-        self.apply_criteria(content=content)
-        # self.eventflow.extend(content)
+            counts = Counter(labels)
+            counts = dict(sorted(counts.items()))
 
-    def load_all(self):
-        for json_file in self.json_files:
-            self.load_json(json_file=json_file)
+            center_colors = kmeans.cluster_centers_
+            ordered_colors = [center_colors[i] for i in counts.keys()]
+            hex_colours = [RGB2HEX(ordered_colors[i]) for i in counts.keys()]
+            self.dominant_colors = [ordered_colors[i] for i in counts.keys()]
+            # self.dominant_colors.append(list(dominant_colors[0]))         # If we only want to the most dominant color
+
+            if self.verbose:
+                # In case to see the pie chart of the dominant colors
+                plt.pie(counts.values(), colors=hex_colours)
+                plt.savefig("output/dominant_colors_pie.png")
+                plt.show()
+
+    def apply_criteria(self, content):
+        """
+        For Eventbarcode generation, there are several methods.
+        In this function, the criteria is determined
+
+        :param content: a list or list-like data structure
+        :return:
+        """
+        if self.criteria == 'random':
+            # find the length of the content and pick a random one
+            leng_ = len(content)
+            print(f"Content length: {leng_}")
+            self.eventflow.extend([content[np.random.choice(leng_)] for _ in range(self.barcode_width)])
+        elif self.criteria == 'first':
+            print(f"Criteria first")
+            # self.eventflow.append(content[0])
+            self.eventflow.extend([content[0] for _ in range(self.barcode_width)])
+        elif self.criteria == 'dominant':
+            print(f"Criteria dominant")
+            self.find_dominant_colors(content)
+            self.eventflow.extend(self.dominant_colors)
+        # TODO: Calculate the middle frame and generate eventbarcode with this
+        elif self.criteria == "middle":
+            pass
+        # TODO: Choose a specific time of all videos and attach particular frames to generate eventbarcode
+
+    def build(
+            self,
+            file_name="eventbarcode.png",
+            make_image=True
+    ):
+        """
+
+        :param file_name: Provide the filename to record and name the output png file
+                The default value is "eventbarcode.png"
+        :param make_image: Create the image of the generated eventbarcode
+                The default value is True. If it's False, save the eventbarcode as a json file.
+        :return:
+        """
+        if len(self.json_files) == 0:
+            self.get_json_files()
+        print(f"All json files -> {self.json_files}")
+
+        # Get dominant colors
+        for json_file in tqdm.tqdm(self.json_files):
+            print(json_file)
+            with open(json_file) as f:
+                content = json.load(f)
+                # TODO: Set criteria here
+                self.apply_criteria(content=content)
+
+        # Generate moviebarcode out of all dominant colors
+        mb = Moviebarcode(barcode_width=self.barcode_width)
+        mb.generate(colors=self.eventflow)
+        print(f"The length of eventbarcode {len(self.eventflow)}")
+
+        if make_image:
+            # save the resultant moviebarcode to the disk
+            mb.make_image(file_name=os.getcwd()+"/"+self.criteria+"_aus_"+file_name)
+        else:
+            # TODO: Make sure the filename's file extension is .json
+            mb.write2json(file_name=os.getcwd()+"/"+self.criteria+"_aus_"+file_name)

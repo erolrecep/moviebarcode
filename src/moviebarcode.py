@@ -14,8 +14,9 @@ class Moviebarcode:
     Generate moviebarcode from an input video
     """
     # TODO: Optimize the resize process and rescale 1K+ size videos to 480
-    def __init__(self, video_path, verbose=True,
+    def __init__(self, video_path=None, verbose=True,
                  # optimize=True
+                 barcode_width=1
                  ):
         self.video_path = video_path
         self.verbose = verbose
@@ -36,6 +37,7 @@ class Moviebarcode:
         self.fps = 0                                      # We get this value from imutils' fps() function
         self.barcode = None                               # Keep barcode object for further use
         self.barcode_height = 224                         # Set barcode image height
+        self.barcode_width = barcode_width
 
     def if_exist(self):
         if not os.path.exists(self.video_path):
@@ -130,24 +132,28 @@ class Moviebarcode:
             if freq != int(freq):
                 self.barcode_frequency = self.fps * freq * 60
 
-    def generate(self):
-        # generate frames average
-        self.get_frames_avgs()
+    def generate(self, colors=None):
+        if colors is None:
+            # generate frames average
+            self.get_frames_avgs()
+        else:
+            self.frame_avgs = colors
+            print(f"Frame avgs -> {self.frame_avgs}")
 
         # TODO: Add barcode_frequency option to this assignment
         self.barcode = np.zeros((self.barcode_height, len(self.frame_avgs), 3), dtype="uint8")
 
         for (i, avg) in enumerate(np.array(self.frame_avgs)):
             cv2.rectangle(self.barcode,
-                          (int(i), 0),
-                          (int(i + 1), self.barcode_height),
+                          (int(i*self.barcode_width), 0),
+                          (int(i + 1)*self.barcode_width, self.barcode_height),
                           (int(avg[0]), int(avg[1]), int(avg[2])), 3)
 
         if self.verbose:
             logging.info(msg="Barcode is being calculated ...")
 
     # TODO: Make the barcode name dynamic to input video id
-    def make_image(self, file_name="moviebarcode.png"):
+    def make_image(self, file_name="output/moviebarcode.png"):
         # save as image
         if self.barcode is not None:
             cv2.imwrite(filename=file_name, img=self.barcode)
@@ -163,7 +169,7 @@ class Moviebarcode:
         cv2.waitKey(0)
 
     # TODO: make json file name dynamic to input video id
-    def write2json(self, file_name="barcode.json"):
+    def write2json(self, file_name="output/barcode.json"):
         # Convert BGR-kind moviebarcode array to RGB
         b = np.array(self.frame_avgs)[:, 0].reshape(-1, 1)
         g = np.array(self.frame_avgs)[:, 1].reshape(-1, 1)
