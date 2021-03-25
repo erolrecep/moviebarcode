@@ -5,3 +5,5 @@ config.yaml
 /.ipynb_checkpoints/
 /output/
 /src/__pycache__/
+/output_aus/
+*.png
