@@ -15,7 +15,7 @@ class Moviebarcode:
     """
     # TODO: Optimize the resize process and rescale 1K+ size videos to 480
     def __init__(self, video_path=None, verbose=True,
-                 # optimize=True
+                 # optimize=True                          # TODO: Work on to optimize the moviebarcode generation
                  barcode_width=1
                  ):
         self.video_path = video_path
@@ -40,18 +40,33 @@ class Moviebarcode:
         self.barcode_width = barcode_width
 
     def if_exist(self):
+        """
+        For provided video path, check if it exists
+
+        :return: The result of if the video exists
+        """
         if not os.path.exists(self.video_path):
             logging.info(msg=f"{self.video_path} doesn't exist!")
             return False
         return True
 
     def load_video(self):
+        """
+        Accelerated video stream with multi-threading support
+
+        :return:
+        """
         if self.verbose:
             logging.info(msg=f"{self.video_path} is loading ..")
         if self.if_exist():
             self.video = FileVideoStream(self.video_path)
 
     def get_frames_avgs(self):
+        """
+        Calculate frames' average pixel values for all frames of loaded video
+
+        :return: build the list for average pixel values
+        """
         if self.video is None:
             self.load_video()
 
@@ -96,12 +111,22 @@ class Moviebarcode:
                 logging.info(msg=f"[Processed] Size: {self.processed_video_width} x {self.processed_video_height}")
 
     def get_barcode_frame_count(self):
+        """
+        Get the total number of frames for input video
+
+        :return:
+        """
         if self.barcode is not None:
             self.barcode_frame_count = self.barcode.shape[0]
         if self.verbose:
             logging.info(msg=f"Total number of frames in barcode: {self.barcode_frame_count}")
 
     def barcode_frame_sequence(self):
+        """
+        On moviebarcode generation, the sequence of frames average can be set
+
+        :return: Setting the frequency with the user input
+        """
         # per frame
         if self.barcode_frequency is None:
             self.barcode_frequency = 1
@@ -133,12 +158,19 @@ class Moviebarcode:
                 self.barcode_frequency = self.fps * freq * 60
 
     def generate(self, colors=None):
+        """
+        Moviebarcode generation function.
+        This function has options, if a list of pixel values are provided, the moviebarcode image can be generated
+        :param colors: A list or list-like object that contains pixel values
+        Default value is None
+
+        :return: RGB image of generated moviebarcode
+        """
         if colors is None:
             # generate frames average
             self.get_frames_avgs()
         else:
             self.frame_avgs = colors
-            print(f"Frame avgs -> {self.frame_avgs}")
 
         # TODO: Add barcode_frequency option to this assignment
         self.barcode = np.zeros((self.barcode_height, len(self.frame_avgs), 3), dtype="uint8")
@@ -154,6 +186,13 @@ class Moviebarcode:
 
     # TODO: Make the barcode name dynamic to input video id
     def make_image(self, file_name="output/moviebarcode.png"):
+        """
+        Create the PNG RGB image for the barcode object.
+        :param file_name: The filename to name and record the image.
+        The default value is "output/moviebarcode.png"
+
+        :return: Write RGB image to a PNG file.
+        """
         # save as image
         if self.barcode is not None:
             cv2.imwrite(filename=file_name, img=self.barcode)
@@ -162,7 +201,10 @@ class Moviebarcode:
             cv2.imwrite(filename=file_name, img=self.barcode)
 
     def display_barcode(self):
-        # visualize as PIL image or OpenCV image
+        """
+        visualize the moviebarcode image with OpenCV
+        :return:
+        """
         if self.verbose:
             logging.info(msg="Barcode is displayed with OpenCV")
         cv2.imshow("Barcode", self.barcode)
@@ -170,7 +212,13 @@ class Moviebarcode:
 
     # TODO: make json file name dynamic to input video id
     def write2json(self, file_name="output/barcode.json"):
-        # Convert BGR-kind moviebarcode array to RGB
+        """
+        Write moviebarcode pixel values to a json file
+        :param file_name: Name the json file to record to the disk
+        The default value is "output/barcode.json"
+        :return:
+        """
+        # Since our values are OpenCV image object which is BGR imager, convert the moviebarcode array to RGB
         b = np.array(self.frame_avgs)[:, 0].reshape(-1, 1)
         g = np.array(self.frame_avgs)[:, 1].reshape(-1, 1)
         r = np.array(self.frame_avgs)[:, 2].reshape(-1, 1)
