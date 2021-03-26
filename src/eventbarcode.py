@@ -99,7 +99,7 @@ class EventBarcode:
                 # In case to see the pie chart of the dominant colors
                 plt.pie(counts.values(), colors=hex_colours)
                 plt.savefig("output/dominant_colors_pie.png")
-                plt.show()
+                # plt.show()
 
     def apply_criteria(self, content):
         """
@@ -112,14 +112,14 @@ class EventBarcode:
         if self.criteria == 'random':
             # find the length of the content and pick a random one
             leng_ = len(content)
-            print(f"Content length: {leng_}")
+            # print(f"Content length: {leng_}")
             self.eventflow.extend([content[np.random.choice(leng_)] for _ in range(self.barcode_width)])
         elif self.criteria == 'first':
-            print(f"Criteria first")
+            # print(f"Criteria first")
             # self.eventflow.append(content[0])
             self.eventflow.extend([content[0] for _ in range(self.barcode_width)])
         elif self.criteria == 'dominant':
-            print(f"Criteria dominant")
+            # print(f"Criteria dominant")
             self.find_dominant_colors(content)
             self.eventflow.extend(self.dominant_colors)
         # TODO: Calculate the middle frame and generate eventbarcode with this
@@ -142,11 +142,10 @@ class EventBarcode:
         """
         if len(self.json_files) == 0:
             self.get_json_files()
-        print(f"All json files -> {self.json_files}")
 
         # Get dominant colors
         for json_file in tqdm.tqdm(self.json_files):
-            print(json_file)
+            # print(json_file)
             with open(json_file) as f:
                 content = json.load(f)
                 # TODO: Set criteria here
