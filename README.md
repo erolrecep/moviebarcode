@@ -77,6 +77,6 @@ eb.build(file_name="eventbarcode.png")
 
 Sample Eventbarcode Images
 
-![dominant_aus_eventbarcode.png]()
-![first_aus_eventbarcode.png]()
-![dominant_aus_eventbarcode.png]()
+![dominant_aus_eventbarcode.png](https://github.com/erolrecep/moviebarcode/blob/eventbarcode/images/dominant_aus_eventbarcode.png)
+![first_aus_eventbarcode.png](https://github.com/erolrecep/moviebarcode/blob/eventbarcode/images/first_aus_eventbarcode.png)
+![random_aus_eventbarcode.png](https://github.com/erolrecep/moviebarcode/blob/eventbarcode/images/random_aus_eventbarcode.png)
