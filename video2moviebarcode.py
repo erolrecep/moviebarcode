@@ -18,7 +18,7 @@ def vid2barcode(video_path):
     # Create an image, .png file
     moviebarcode.make_image()
     # write to json file
-    moviebarcode.write2json(video_path.split("/")[-1].split(".")[0]+".json")
+    moviebarcode.write2json("output_aus/"+video_path.split("/")[-1].split(".")[0]+".json")
 
 
 # Read user input video and generate moviebarcode out of it
@@ -38,8 +38,8 @@ def main():
 
         # Multi-core (Multi-process) processing of a list of videos
         start = time.perf_counter()
-        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
-            executor.map(vid2barcode, videos_paths[:10])
+        with concurrent.futures.ProcessPoolExecutor(max_workers=30) as executor:
+            executor.map(vid2barcode, videos_paths)
         stop = time.perf_counter()
         print(f"[INFO] Total processing time: {stop - start:0.4f}")
 
