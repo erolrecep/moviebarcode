@@ -1,7 +1,8 @@
 ## Moviebarcode Generator
 
 
-![movie_barcode_diagram](https://raw.githubusercontent.com/erolrecep/moviebarcode/moviebarcode/images/moviebarcode.gif)
+![movie_barcode_diagram](https://github.com/erolrecep/moviebarcode/blob/main/images/moviebarcode.gif)
+
 
         
 ### Project Setup
