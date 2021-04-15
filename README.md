@@ -39,8 +39,8 @@ moviebarcode.make_image()
 
 Sample barcode outputs
 
-![g8vHhgh6oM0.png](https://raw.githubusercontent.com/erolrecep/moviebarcode/moviebarcode/images/g8vHhgh6oM0.png)
-![moviebarcode](https://raw.githubusercontent.com/erolrecep/moviebarcode/moviebarcode/images/moviebarcode.png)
+![g8vHhgh6oM0.png](https://github.com/erolrecep/moviebarcode/blob/main/images/g8vHhgh6oM0.png)
+![moviebarcode](https://github.com/erolrecep/moviebarcode/blob/main/images/moviebarcode.png)
 
 Generate Eventbarcode with video2eventbarcode.py
 
