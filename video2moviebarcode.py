@@ -16,9 +16,10 @@ def vid2barcode(video_path):
     moviebarcode = Moviebarcode(video_path)
     moviebarcode.generate()
     # Create an image, .png file
-    moviebarcode.make_image()
+    moviebarcode.make_image(file_name="/Users/erolrecep/PycharmProjects/moviebarcode/nbafinals19/"+\
+                                      video_path.split("/")[-1].split(".")[0]+".png")
     # write to json file
-    moviebarcode.write2json("output_aus/"+video_path.split("/")[-1].split(".")[0]+".json")
+    moviebarcode.write2json("nbafinals19/"+video_path.split("/")[-1].split(".")[0]+".json")
 
 
 # Read user input video and generate moviebarcode out of it

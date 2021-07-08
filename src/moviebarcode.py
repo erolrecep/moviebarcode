@@ -227,3 +227,7 @@ class Moviebarcode:
             json_file.write(json.dumps(self.frame_avgs.tolist()))
         if self.verbose:
             logging.info(msg="Barcode is being written to json file!")
+
+    # TODO: load_from_json() functions should be implemented.
+    def load_from_json(self, json_path):
+        pass
