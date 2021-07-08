@@ -7,3 +7,4 @@ config.yaml
 /src/__pycache__/
 /output_aus/
 *.png
+nbafinals19/
